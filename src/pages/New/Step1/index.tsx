@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { Block } from 'baseui/block'
 import {
   Card,
@@ -14,6 +14,10 @@ export interface TCard {
 }
 
 export default function Step1 () {
+  const history = useHistory()
+
+  const handleClick = React.useCallback((link: string) => history.push(link), [history])
+
   return (
     <React.Fragment>
       <Block
@@ -52,17 +56,13 @@ export default function Step1 () {
               </StyledBody>
               <StyledAction>
                 <Button
+                  onClick={_ => handleClick(card.link)}
                   shape={SHAPE.pill}
                   overrides={{
                     BaseButton: { style: { width: '100%' } }
                   }}
                 >
-                  <Link
-                    to={card.link}
-                    style={{ color: 'white' }}
-                  >
-                    {card.buttonText}
-                  </Link>
+                {card.buttonText}
                 </Button>
               </StyledAction>
             </Card>

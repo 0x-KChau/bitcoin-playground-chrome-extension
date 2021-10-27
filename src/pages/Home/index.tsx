@@ -1,63 +1,84 @@
 /* eslint-disable no-undef */
 import React from 'react'
-import { Link } from 'react-router-dom'
+import sha256 from 'sha256'
+import { useHistory } from 'react-router-dom'
+import { Input } from 'baseui/input'
 import { Button, SHAPE } from 'baseui/button'
 import { Block } from 'baseui/block'
 import { H1 } from 'baseui/typography'
-
 import { NetworkSelector } from '../../components'
-// import { DOMMessage } from './types'
 
 export default function Home () {
-  const [title, setTitle] = React.useState('click2w')
-  const [headlines, setHeadlines] = React.useState<string[]>([])
+  const history = useHistory()
+  const [password, setPassword] = React.useState('')
+  const [passwordHash, setPasswordHash] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    /**
-     * We can't use "chrome.runtime.sendMessage" for sending messages from React.
-     * For sending messages from React we need to specify which tab to send it to.
-     */
-    console.log('chrome', chrome)
-
-    chrome.storage && chrome.storage.sync.get('title', ({ title }) => {
-      console.log('title', title)
-      setTitle(title)
+    chrome.storage && chrome.storage.sync.get('passwordHash', ({ passwordHash }) => {
+      if (passwordHash) {
+        setPasswordHash(passwordHash)
+      }
     })
+  }, [history])
 
-    chrome.storage && chrome.storage.sync.get('headlines', ({ headlines }) => {
-      console.log('headlines', headlines)
-      setHeadlines(headlines)
-    })
-  }, [])
+  const Unlock = React.useCallback(() => history.push('/new-1'), [history])
+  const handleClickUnlock = React.useCallback(() => {
+    if (sha256(password) === passwordHash) {
+      history.push('/step-2b')
+    }
+  }, [password])
 
-  // const onClick2 = async () => {
-  //   if (!chrome.tabs) {
-  //     return
-  //   }
+  if (passwordHash) {
+    return (
+      <React.Fragment>
+        <Block
+          position='relative'
+          alignContent='center'
+        >
+          <Block
+              padding="0 10%"
+              justifyContent='center'
+              flexDirection='column'
+              alignItems='center'
+              minHeight='100vh'
+              display='flex'
+              color='white'
+          >
+              <H1
+                  $style={{ textAlign: 'center' }}
+              >
+                  Welcome Back!
+              </H1>
 
-  //   const [tab]: any = await chrome.tabs.query({ active: true, currentWindow: true })
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={event => setPassword(event.currentTarget.value)}
+              />
 
-  //   chrome.scripting && chrome.scripting.executeScript({
-  //     target: { tabId: tab.id },
-  //     // @ts-ignore
-  //     function: setMsg
-  //   })
-  // }
+              <Button
+                  onClick={handleClickUnlock}
+                  shape={SHAPE.pill}
+                  overrides={{
+                    Root: {
+                      style: {
+                        paddingInline: '10%',
+                        marginTop: '10%'
+                      }
+                    }
+                  }}
+              >
+              Unlock
+            </Button>
+          </Block>
 
-  // const setMsg = () => {
-  //   const headlines = Array.from(document.getElementsByTagName<'h1'>('h1'))
-  //     .map(h1 => h1.innerText)
-  //   const title = document.title
-
-  //   chrome.runtime.sendMessage(
-  //     {
-  //       type: 'GET_DOM',
-  //       payload: { headlines, title }
-  //     } as DOMMessage
-  //   )
-  // }
-
-  console.log('title', title, headlines)
+          <NetworkSelector />
+        </Block>
+      </React.Fragment>
+    )
+  }
 
   return (
     <React.Fragment>
@@ -78,7 +99,9 @@ export default function Home () {
             >
                 Wellcome to Bitcon Playground
             </H1>
+
             <Button
+                onClick={Unlock}
                 shape={SHAPE.pill}
                 overrides={{
                   Root: {
@@ -88,12 +111,7 @@ export default function Home () {
                   }
                 }}
             >
-                <Link
-                  to="/new-1"
-                  style={{ color: 'white' }}
-                >
-                    <p>Get Started</p>
-                </Link>
+            Get Started
           </Button>
         </Block>
 

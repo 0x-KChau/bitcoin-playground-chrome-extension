@@ -1,52 +1,34 @@
 /* eslint-disable no-undef */
 import React from 'react'
+import sha256 from 'sha256'
+import { useHistory } from 'react-router-dom'
 import { FormControl } from 'baseui/form-control'
 import { Block } from 'baseui/block'
 import { Input } from 'baseui/input'
 import { Checkbox } from 'baseui/checkbox'
 import { Button, SHAPE } from 'baseui/button'
 import { H2 } from 'baseui/typography'
-import { generateMnemonic } from '../../../lib/scripts/walletScript'
-import { DOMMessage } from '../../../types'
 
 // Step2 - Create Wallet
 export default function Step2a () {
+  const history = useHistory()
   const [checked, setChecked] = React.useState(true)
   const [password, setPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
-  const [seed, setSeed] = React.useState<string | null>(null)
 
   const onClickCreate = React.useCallback(() => {
-    console.log('onClickCreate', checked, password, confirmPassword)
-    const seed = generateMnemonic(password)
-    console.log('seed', seed)
-    setSeed(seed)
-    storeSeed(seed)
+    extension()
+    history.push('/step-2b')
   }, [checked, password, confirmPassword])
 
-  const storeSeed = async (seed: string): Promise<void> => {
-    if (!chrome.tabs) {
+  const extension = () => {
+    if (!chrome.storage) {
       return
     }
 
-    const [tab]: any = await chrome.tabs.query({ active: true, currentWindow: true })
-    console.log('storeSeed', seed)
+    const passwordHash = sha256(password)
 
-    chrome.scripting && chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      // @ts-ignore
-      function: sendChromeMsg
-    })
-  }
-
-  const sendChromeMsg = () => {
-    console.log('sendChromeMsg seed', seed)
-    chrome.runtime.sendMessage(
-      {
-        type: 'SET_STORAGE',
-        payload: { seed }
-      } as DOMMessage
-    )
+    chrome.storage.sync.set({ passwordHash })
   }
 
   return (
