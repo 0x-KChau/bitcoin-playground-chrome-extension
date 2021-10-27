@@ -1,11 +1,10 @@
 /* eslint-disable no-undef */
 import { DOMMessage, DOMMessageResponse } from '../types'
 
-const color = '#3aa757'
-
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.set({ color })
-  console.log('Default background color set to %cgreen', `color: ${color}`)
+  chrome.storage.sync.get('passwordHash', ({ passwordHash }) => {
+    console.log('passwordHash', passwordHash)
+  })
 })
 
 chrome.storage.onChanged.addListener((changes, namespace) => {

@@ -1,0 +1,52 @@
+const storeSeed = async (): Promise<void> => {
+  if (!chrome.tabs) {
+    return
+  }
+
+  const [tab]: any = await chrome.tabs.query({ active: true, currentWindow: true })
+
+  chrome.scripting && chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    // @ts-ignore
+    function: sendChromeMsg
+  })
+}
+
+const sendChromeMsg = () => {
+  const passwordHash: string | null = (document.getElementById('passwordHash') as HTMLInputElement).getAttribute('data-hash')
+  console.log('sendChromeMsg passwordHash', passwordHash)
+
+  chrome.runtime.sendMessage(
+      {
+        type: 'SET_STORAGE',
+        payload: { passwordHash }
+      } as DOMMessage
+  )
+}
+
+const onClick2 = async () => {
+  if (!chrome.tabs) {
+    return
+  }
+
+  const [tab]: any = await chrome.tabs.query({ active: true, currentWindow: true })
+
+  chrome.scripting && chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    // @ts-ignore
+    function: setMsg
+  })
+}
+
+const setMsg = () => {
+  const headlines = Array.from(document.getElementsByTagName<'h1'>('h1'))
+    .map(h1 => h1.innerText)
+  const title = document.title
+
+  chrome.runtime.sendMessage(
+      {
+        type: 'GET_DOM',
+        payload: { headlines, title }
+      } as DOMMessage
+  )
+}
