@@ -24,6 +24,12 @@ export default function Step2a () {
     })
   }, [history])
 
+  const onClickRedirect = React.useCallback(() => {
+    const timeSession = new Date().getTime() + 1000 * 60 * 60 * 24 * 3 // expired in 3 days
+    chrome.storage && chrome.storage.sync.set({ timeSession })
+    history.push('/account')
+  }, [])
+
   return (
     <React.Fragment>
       <Block
@@ -47,6 +53,7 @@ export default function Step2a () {
           overrides={{
             BaseButton: { style: { width: '100%', marginTop: '10%' } }
           }}
+          onClick={onClickRedirect}
         >
           Let&apos;s Go
         </Button>

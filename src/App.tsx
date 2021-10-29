@@ -5,7 +5,8 @@ import {
   Route
 } from 'react-router-dom'
 import Home from './pages/Home'
-import { Step1, Step2a, Step2b } from './pages/New'
+import Account from './pages/Account'
+import { Step1, Step2a, Step2b, Step3a } from './pages/New'
 
 export default function App () {
   return (
@@ -19,6 +20,12 @@ export default function App () {
             </Route>
             <Route path="/step-2b">
                 <Step2b />
+            </Route>
+            <Route path="/step-3a">
+                <Step3a />
+            </Route>
+            <Route path="/account">
+                <Account />
             </Route>
             <Route path="/">
                 <Home />
