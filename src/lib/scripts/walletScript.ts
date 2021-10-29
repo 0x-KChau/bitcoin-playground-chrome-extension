@@ -10,30 +10,44 @@ export const getAddress = (node: any, network?: any): string => {
 
 export const generateMnemonic = (password: string): string => {
   const mnemonic = bip39.generateMnemonic()
-  // const seed = bip39.mnemonicToSeedSync(mnemonic, password).toString('hex')
+  mnemonicToSeed(mnemonic, password)
   return mnemonic
 }
 
-export const generateHDSigWit = ({ seed, derivePath, coinType, network } : {seed: string, derivePath?: string, coinType: string, network: string}): Array<string> | undefined => {
+export const mnemonicToSeed = (mnemonic: string, password: string) => {
+  const seed = bip39.mnemonicToSeedSync(mnemonic, password).toString('hex')
+  console.log('mnemonic', mnemonic)
+  console.log('password', password)
+  console.log('seed', seed)
+  chrome.storage && chrome.storage.sync.set({ seed })
+}
+
+/**
+   * Generate a Hierarchical Deterministic (HD) Segregated Witness (SegWit) bitcoin address from a given seed and path
+   * @param {string} seed
+   * @param {string} derivePath
+   * @param {string} coinType
+   * @param {string} network
+   * @return {Array<string> | undefined}
+*/
+export const generateHDSigWit = ({ seed, derivePath, coinType, network } : {seed: string, derivePath?: string, coinType: string, network: string}): Array<string> => {
   console.log('seed, derivePath', seed, derivePath)
 
-  const hdNode = bitcoin.bip32.fromSeed(seed)
+  const hdNode = bitcoin.bip32.fromSeed(Buffer.from(seed, 'hex'))
   console.log('hdNode', hdNode)
 
   if (derivePath) {
     // m/44'/0'/0'/0/0
-    const validPathReg = new RegExp(/m\/44'\/0'\/0'\/[0-1]\/[0-19]/ig)
+    const validPathReg = new RegExp(/m\/44'\/0'\/0'\/[0-1]\/(?:1?\d)\b/ig)
     const validPath = validPathReg.test(derivePath)
     console.log('validPath', validPath)
 
     if (!validPath) {
-      return
+      return []
     };
 
-    const account = hdNode.derivePath(derivePath)
-    console.log('account', account)
-
-    const address = getAddress(hdNode)
+    const accounts = hdNode.derivePath(derivePath)
+    const address = getAddress(accounts)
     console.log('address', address)
 
     return [address]
@@ -59,8 +73,9 @@ const accountDisccory = (hdNode: any, coinType: string, network: string): Array<
     .deriveHardened(0) // Accounts are numbered from index 0 in sequentially increasing manner.
 
   const GAP_LIMIT = 20
+  let i = 0
 
-  for (let i = 0; i < GAP_LIMIT; i++) {
+  while (i < GAP_LIMIT) {
     const account = childNode
       .derive(0) // Constant 0 is used for external chain and constant 1 for internal chain
       .derive(i) // Addresses are numbered from index 0 in sequentially increasing manner.
@@ -74,8 +89,11 @@ const accountDisccory = (hdNode: any, coinType: string, network: string): Array<
     console.log('address, valid', address, valid)
 
     if (!valid) {
+      i = 20
       return accounts
     }
+
+    i++
   }
 
   return accounts
@@ -86,29 +104,34 @@ const accountDisccory = (hdNode: any, coinType: string, network: string): Array<
    * @param {number} m
    * @param {number} n
    * @param {Array<string>} _publicKeys
-   * @return {string | Error}
+   * @return {string}
 */
-export const generateMSP2SHAddress = ({ m, n, _publicKeys }: {m: number, n: number, _publicKeys: Array<string>}): string | Error => {
-  // check n equals to _publicKeys.length
-  if (n <= 0 || n !== _publicKeys.length) {
-    return Error('n out of range')
-  }
+export const generateMSP2SHAddress = ({ m, n, _publicKeys }: {m: number, n: number, _publicKeys: Array<string>}): string => {
+  try {
+    // check n equals to _publicKeys.length
+    if (n <= 0 || n !== _publicKeys.length) {
+      return 'n out of range'
+    }
 
-  if (m > n) {
-    return Error('m out of range')
-  }
+    if (m > n) {
+      return 'm out of range'
+    }
 
-  const pubkeys = _publicKeys.map(hex => Buffer.from(hex, 'hex'))
-  console.log('pubkeys', pubkeys)
+    const pubkeys = _publicKeys.map(hex => Buffer.from(hex, 'hex'))
+    console.log('pubkeys', pubkeys)
 
-  const { address } = bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wsh({
-      redeem: bitcoin.payments.p2ms({ m, pubkeys })
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wsh({
+        redeem: bitcoin.payments.p2ms({ m, pubkeys })
+      })
     })
-  })
 
-  console.log('address', address)
-  return address
+    console.log('address', address)
+    return 'This is Your Multi-sig P2SH Address: ' + address
+  } catch (error) {
+    console.error(error)
+    return 'Invalid public keys'
+  }
 }
 
 // const mnemonic = generateMnemonic();

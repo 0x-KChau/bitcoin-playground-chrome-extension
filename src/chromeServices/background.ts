@@ -5,6 +5,12 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.get('passwordHash', ({ passwordHash }) => {
     console.log('passwordHash', passwordHash)
   })
+  chrome.storage.sync.get('seed', ({ seed }) => {
+    console.log('seed', seed)
+  })
+  chrome.storage.sync.get('timeSession', ({ timeSession }) => {
+    console.log('timeSession', timeSession)
+  })
 })
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
