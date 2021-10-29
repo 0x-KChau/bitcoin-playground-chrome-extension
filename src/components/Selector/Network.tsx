@@ -2,9 +2,12 @@ import React from 'react'
 import { Select, TYPE, Value } from 'baseui/select'
 import { Block } from 'baseui/block'
 
-export default function NetworkSelector () {
-  const [value, setValue] = React.useState<Value>([{ key: 'Testnet', value: 'testnet' }])
+export interface TNetwork {
+  network: Value,
+  setNetwork: React.Dispatch<React.SetStateAction<Value>>
+}
 
+export default function NetworkSelector ({ network, setNetwork }: TNetwork) {
   return (
     <React.Fragment>
       <Block
@@ -22,8 +25,8 @@ export default function NetworkSelector () {
           placeholder="Choose a network"
           maxDropdownHeight="300px"
           type={TYPE.search}
-          onChange={({ value }) => setValue(value)}
-          value={value}
+          onChange={params => setNetwork(params.value)}
+          value={network}
         />
       </Block>
     </React.Fragment>
