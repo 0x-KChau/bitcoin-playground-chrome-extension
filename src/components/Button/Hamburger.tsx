@@ -10,7 +10,7 @@ import { Label1, Label2, Label4, MonoParagraphSmall } from 'baseui/typography'
 import { Card } from 'baseui/card'
 import { Divider } from '../index'
 
-export default function Hambuger ({ internalAccounts, externalAccounts, onClickCreateExternalAccount, onClickCreateInternalAccount, onClickCopy, onClickToggleModal }: { internalAccounts: Array<string>, externalAccounts: Array<string>, onClickCreateExternalAccount: any, onClickCreateInternalAccount: any, onClickCopy: any, onClickToggleModal: any }) {
+export default function Hamburger ({ internalAccounts, externalAccounts, onClickCreateExternalAccount, onClickCreateInternalAccount, onClickCopy, onClickToggleModal }: { internalAccounts: Array<string>, externalAccounts: Array<string>, onClickCreateExternalAccount: any, onClickCreateInternalAccount: any, onClickCopy: any, onClickToggleModal: any }) {
   const history = useHistory()
 
   const onClickLock = React.useCallback(() => {
@@ -37,7 +37,7 @@ export default function Hambuger ({ internalAccounts, externalAccounts, onClickC
             overrides={{
               Body: {
                 style: {
-                  width: '60%',
+                  width: '75%',
                   background: 'rgba(0,0,0,0.3)'
                 }
               },
