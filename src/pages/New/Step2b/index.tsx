@@ -7,6 +7,7 @@ import { Button, SHAPE } from 'baseui/button'
 import { FormControl } from 'baseui/form-control'
 import { H2 } from 'baseui/typography'
 import { generateMnemonic } from '../../../lib/scripts/walletScript'
+import { BackButton } from '../../../components'
 
 // Step2 - Create Wallet
 export default function Step2a () {
@@ -36,6 +37,9 @@ export default function Step2a () {
         padding='10%'
         minHeight='100vh'
       >
+        {/* Go back */}
+        <BackButton />
+
         <H2>Secret Recovery Phrase</H2>
         <FormControl
           caption={() => "*DO NOT share this phrase with anyone! These words can be used to steal all your accounts. You can't edit or change your Secret Recovery Phrase."}

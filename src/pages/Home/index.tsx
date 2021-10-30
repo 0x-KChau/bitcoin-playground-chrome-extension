@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { Input } from 'baseui/input'
 import { Button, SHAPE } from 'baseui/button'
 import { Block } from 'baseui/block'
-import { H1 } from 'baseui/typography'
+import { H1, ParagraphSmall } from 'baseui/typography'
 import { SnackbarElement } from 'baseui/snackbar'
 import btcIcon from '../../assets/images/btc.png'
 
@@ -72,6 +72,7 @@ export default function Home () {
                 Root: {
                   style: {
                     position: 'sticky',
+                    background: '#f6931a',
                     zIndex: 10,
                     left: '5%',
                     top: '5%'
@@ -85,17 +86,22 @@ export default function Home () {
         <Block
           position='relative'
           alignContent='center'
+          minHeight='100vh'
         >
           <Block
-            padding="0 10%"
+            padding="10%"
             justifyContent='center'
             flexDirection='column'
             alignItems='center'
-            minHeight='100vh'
             display='flex'
             color='white'
           >
-            <img src={btcIcon} width='100px' height='100px' />
+
+            <img
+              src={btcIcon}
+              width='100px'
+              height='100px'
+            />
 
             <H1
               $style={{ textAlign: 'center' }}
@@ -118,13 +124,28 @@ export default function Home () {
                 Root: {
                   style: {
                     paddingInline: '10%',
-                    marginTop: '10%'
+                    marginTop: '10%',
+                    width: '100%'
                   }
                 }
               }}
             >
               Unlock
             </Button>
+
+            <ParagraphSmall
+              color='grey'
+              onClick={() => history.push('/step-3a')}
+              overrides={{
+                Block: {
+                  style: {
+                    cursor: 'pointer'
+                  }
+                }
+              }}
+            >
+              or import using Secret Recovery Phrase
+            </ParagraphSmall>
           </Block>
         </Block>
       </React.Fragment>
@@ -144,9 +165,14 @@ export default function Home () {
           minHeight='100vh'
           display='flex'
           color='white'
+          padding="5%"
         >
 
-          <img src={btcIcon} width='100px' height='100px' />
+          <img
+            src={btcIcon}
+            width='100px'
+            height='100px'
+          />
 
           <H1
             $style={{ textAlign: 'center' }}

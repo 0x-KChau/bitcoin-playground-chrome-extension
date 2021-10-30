@@ -10,6 +10,7 @@ import { Checkbox } from 'baseui/checkbox'
 import { Button, SHAPE } from 'baseui/button'
 import { H2 } from 'baseui/typography'
 import { mnemonicToSeed } from '../../../lib/scripts/walletScript'
+import { BackButton } from '../../../components'
 
 // Step2 - Create Wallet
 export default function Step3a () {
@@ -42,6 +43,9 @@ export default function Step3a () {
         padding='10%'
         minHeight='100vh'
       >
+        {/* Go back */}
+        <BackButton />
+
         <H2>Restore your Account with Secret Recovery Phrase</H2>
         <FormControl
           label={() => 'Wallet Secret Recovery Phrase'}

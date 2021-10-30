@@ -8,6 +8,7 @@ import { Input } from 'baseui/input'
 import { Checkbox } from 'baseui/checkbox'
 import { Button, SHAPE } from 'baseui/button'
 import { H2 } from 'baseui/typography'
+import { BackButton } from '../../../components'
 
 // Step2 - Create Wallet
 export default function Step2a () {
@@ -37,6 +38,9 @@ export default function Step2a () {
         padding='10%'
         minHeight='100vh'
       >
+        {/* Go back */}
+        <BackButton />
+
         <H2>Create Password</H2>
         <FormControl
           label={() => 'Password (min 8 chars)'}

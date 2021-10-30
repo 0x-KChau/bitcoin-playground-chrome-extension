@@ -8,6 +8,7 @@ import {
 } from 'baseui/card'
 import { Button, SHAPE } from 'baseui/button'
 import { StatefulTooltip } from 'baseui/tooltip'
+import { BackButton } from '../../../components'
 
 export interface TCard {
   title: string, tooltop: string, buttonText: string, link: string
@@ -28,6 +29,9 @@ export default function Step1 () {
         alignItems="center"
         minHeight='100vh'
       >
+        {/* Go back */}
+        <BackButton />
+
         {
           cards.map((card: TCard) => (
             <Card
@@ -78,7 +82,7 @@ const cards: Array<TCard> = [
     title: 'No, I already have a Secret Recovery Phrase',
     tooltop: 'Import your existing wallet using a Secret Recovery Phrase',
     buttonText: 'Import Wallet',
-    link: '/step-2b'
+    link: '/step-3a'
   },
   {
     title: 'Yes, let’s get set up!',

@@ -14,7 +14,7 @@ import {
 } from 'baseui/card'
 import { Notification, KIND } from 'baseui/notification'
 import { generateHDSigWit, generateMSP2SHAddress } from '../../lib/scripts/walletScript'
-import { NetworkSelector, MSP2SHModal, Divider, Hambuger } from '../../components'
+import { NetworkSelector, MSP2SHModal, Divider, Hamburger } from '../../components'
 import btcIcon from '../../assets/images/btc.png'
 
 // Account Page
@@ -29,11 +29,6 @@ export default function Account () {
   const [isOpen, setIsOpen] = React.useState(false)
 
   React.useEffect(() => {
-    // generateHDSigWit({
-    //   seed: '7202253244ee1b198bd5b3ae2321288e2fe37c7db6c6b35a118174bef6b21e180ecf26ff466f181b3e3dfe074bf6f440a9e967991e81c77373c7a2faf90f901c',
-    //   coinType: 'BTC',
-    //   network: network[0]?.value
-    // })
     chrome.storage && chrome.storage.sync.get('seed', ({ seed }) => {
       if (seed) {
         setSeed(seed)
@@ -108,17 +103,16 @@ export default function Account () {
 
   const onClickCreateMSP2SHAddress = React.useCallback(({ m, n, publicKeys }) => {
     setIsOpen(false)
-    // console.log('m, n, publicKeys', m, n, publicKeys)
-    const address = generateMSP2SHAddress({ m, n, _publicKeys: publicKeys })
-    setNotification(address)
+    const result = generateMSP2SHAddress({ m, n, _publicKeys: publicKeys })
+    setNotification(result.msg)
   }, [])
 
   return (
     <React.Fragment>
         <Block
             padding='15% 5%'
-            minHeight='100vh'
             position='relative'
+            minHeight='100vh'
         >
             {/* Notification */}
             {
@@ -159,6 +153,7 @@ export default function Account () {
                           Root: {
                             style: {
                               position: 'sticky',
+                              background: '#f6931a',
                               zIndex: 10,
                               left: '5%',
                               top: '5%'
@@ -189,7 +184,7 @@ export default function Account () {
                         placement='bottom'
                     >
                         <Block
-                            onClick={onClickCopy}
+                            onClick={() => onClickCopy(externalAccounts[0])}
                             display='flex'
                             flexDirection='column'
                             justifyContent='center'
@@ -209,8 +204,8 @@ export default function Account () {
                             </Label4>
                         </Block>
                     </StatefulTooltip>
-                    {/* Hambuger */}
-                    <Hambuger
+                    {/* Hamburger */}
+                    <Hamburger
                         internalAccounts={internalAccounts}
                         externalAccounts={externalAccounts}
                         onClickCopy={onClickCopy}
