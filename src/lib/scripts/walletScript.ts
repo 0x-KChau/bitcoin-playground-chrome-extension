@@ -1,8 +1,9 @@
 /* eslint-disable prefer-regex-literals */
 /* eslint-disable no-undef */
-const bip39 = require('bip39')
-const bitcoin = require('bitcoinjs-lib')
-const WAValidator = require('wallet-address-validator')
+import * as bip39 from 'bip39'
+import * as bitcoin from 'bitcoinjs-lib'
+import * as WAValidator from 'wallet-address-validator'
+import { crawler } from './validatorScript'
 
 export const getAddress = (node: any, network?: any): string => {
   return bitcoin.payments.p2wpkh({ pubkey: node.publicKey, network }).address!
@@ -16,10 +17,7 @@ export const generateMnemonic = (password: string): string => {
 
 export const mnemonicToSeed = (mnemonic: string, password: string) => {
   const seed = bip39.mnemonicToSeedSync(mnemonic, password).toString('hex')
-  console.log('mnemonic', mnemonic)
-  console.log('password', password)
-  console.log('seed', seed)
-  chrome.storage && chrome.storage.sync.set({ seed })
+  global.chrome?.storage && global.chrome.storage.sync.set({ seed })
 }
 
 /**
@@ -31,16 +29,12 @@ export const mnemonicToSeed = (mnemonic: string, password: string) => {
    * @return {Array<string> | undefined}
 */
 export const generateHDSigWit = ({ seed, derivePath, coinType, network } : {seed: string, derivePath?: string, coinType: string, network: string}): Array<string> => {
-  console.log('seed, derivePath', seed, derivePath)
-
   const hdNode = bitcoin.bip32.fromSeed(Buffer.from(seed, 'hex'))
-  console.log('hdNode', hdNode)
 
   if (derivePath) {
     // m/44'/0'/0'/0/0
     const validPathReg = new RegExp(/m\/44'\/0'\/0'\/[0-1]\/(?:1?\d)\b/ig)
     const validPath = validPathReg.test(derivePath)
-    console.log('validPath', validPath)
 
     if (!validPath) {
       return []
@@ -48,7 +42,6 @@ export const generateHDSigWit = ({ seed, derivePath, coinType, network } : {seed
 
     const accounts = hdNode.derivePath(derivePath)
     const address = getAddress(accounts)
-    console.log('address', address)
 
     return [address]
   }
@@ -59,7 +52,6 @@ export const generateHDSigWit = ({ seed, derivePath, coinType, network } : {seed
   // if no transactions are found on the external chain, stop discovery
   // if there are some transactions, increase the account index and go to step 1
   const accounts: Array<string> = accountDisccory(hdNode, coinType, network)
-  console.log('accounts', accounts)
 
   return accounts
 }
@@ -84,9 +76,7 @@ const accountDisccory = (hdNode: any, coinType: string, network: string): Array<
 
     accounts.push(address)
 
-    const valid = WAValidator.validate(address, coinType, network)
-
-    console.log('address, valid', address, valid)
+    const valid = WAValidator.validate(address, coinType, network) && crawler.queue(address)
 
     if (!valid) {
       i = 20
@@ -106,19 +96,18 @@ const accountDisccory = (hdNode: any, coinType: string, network: string): Array<
    * @param {Array<string>} _publicKeys
    * @return {string}
 */
-export const generateMSP2SHAddress = ({ m, n, _publicKeys }: {m: number, n: number, _publicKeys: Array<string>}): string => {
+export const generateMSP2SHAddress = ({ m, n, _publicKeys }: {m: number, n: number, _publicKeys: Array<string>}): {address?: string, msg: string} => {
   try {
     // check n equals to _publicKeys.length
     if (n <= 0 || n !== _publicKeys.length) {
-      return 'n out of range'
+      return { msg: 'n out of range' }
     }
 
     if (m > n) {
-      return 'm out of range'
+      return { msg: 'm out of range' }
     }
 
     const pubkeys = _publicKeys.map(hex => Buffer.from(hex, 'hex'))
-    console.log('pubkeys', pubkeys)
 
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wsh({
@@ -126,29 +115,12 @@ export const generateMSP2SHAddress = ({ m, n, _publicKeys }: {m: number, n: numb
       })
     })
 
-    console.log('address', address)
-    return 'This is Your Multi-sig P2SH Address: ' + address
+    return {
+      address,
+      msg: 'This is Your Multi-sig P2SH Address: ' + address
+    }
   } catch (error) {
     console.error(error)
-    return 'Invalid public keys'
+    return { msg: 'Invalid public keys' }
   }
 }
-
-// const mnemonic = generateMnemonic();
-// const seed = bip39.mnemonicToSeedSync(mnemonic);
-// generateHDSigWit({
-//     seed,
-//     derivePath: "m/44'/0'/0'/0/0",
-//     coinType: "BTC",
-//     network: "testnet"
-// });
-
-// const _publicKeys = [
-//     '026477115981fe981a6918a6297d9803c4dc04f328f22041bedff886bbc2962e01',
-//     '02c96db2302d19b43d4c69368babace7854cc84eb9e061cde51cfa77ca4a22b8b9',
-// ];
-// generateMSP2SHAddress({
-//     m: 1,
-//     n: 2,
-//     _publicKeys
-// })
